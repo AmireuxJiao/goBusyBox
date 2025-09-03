@@ -62,15 +62,19 @@ func touchFile(filename string, t time.Time) error {
 	}
 
 	newAtime, newMtime := t, t
+	getNewAMTime(&newAtime, &newMtime, info)
+	return os.Chtimes(filename, newAtime, newMtime)
+}
+
+func getNewAMTime(aTime *time.Time, mTime *time.Time, info os.FileInfo) {
 	switch {
 	case modifyAccessTime && !modifyModifyTime:
-		newMtime = info.ModTime()
+		*mTime = info.ModTime()
 	case modifyModifyTime && !modifyAccessTime:
 		if stat, ok := info.Sys().(*syscall.Stat_t); ok {
-			newAtime = time.Unix(stat.Atim.Sec, stat.Atim.Nsec)
+			*aTime = time.Unix(stat.Atim.Sec, stat.Atim.Nsec)
 		} else {
-			newAtime = info.ModTime()
+			*aTime = info.ModTime()
 		}
 	}
-	return os.Chtimes(filename, newAtime, newMtime)
 }
