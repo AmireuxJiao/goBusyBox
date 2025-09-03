@@ -3,11 +3,17 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
 )
 
+// flags variable
+var (
+	modifyAccessTime bool
+	modifyModifyTime bool
+)
 var touchCommand = &cobra.Command{
 	Use:   "touch [file]",
 	Short: "Create Files and Modify timestamp",
@@ -15,6 +21,8 @@ var touchCommand = &cobra.Command{
 }
 
 func init() {
+	touchCommand.Flags().BoolVarP(&modifyAccessTime, "access", "a", false, "仅更新文件访问时间")
+	touchCommand.Flags().BoolVarP(&modifyModifyTime, "modify", "m", false, "仅更新文件修改时间")
 	rootCmd.AddCommand(touchCommand)
 }
 
@@ -47,5 +55,22 @@ func touchFile(filename string, t time.Time) error {
 	}
 	defer file.Close()
 
-	return os.Chtimes(filename, t, t) // 更新访问时间和修改时间
+	// modify exist file
+	info, err := os.Stat(filename)
+	if err != nil {
+		return err
+	}
+
+	newAtime, newMtime := t, t
+	switch {
+	case modifyAccessTime && !modifyModifyTime:
+		newMtime = info.ModTime()
+	case modifyModifyTime && !modifyAccessTime:
+		if stat, ok := info.Sys().(*syscall.Stat_t); ok {
+			newAtime = time.Unix(stat.Atim.Sec, stat.Atim.Nsec)
+		} else {
+			newAtime = info.ModTime()
+		}
+	}
+	return os.Chtimes(filename, newAtime, newMtime)
 }
