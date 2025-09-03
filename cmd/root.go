@@ -8,11 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const CliName = "goBusyBox"
+const cliName = "goBusyBox"
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   CliName,
+		Use:   cliName,
 		Short: "A busybox-like tool built with Cobra",
 		Long:  `goBusyBox is a multi-functional tool that behaves differently based on the command name used to invoke it.`,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -28,14 +28,14 @@ func Execute() {
 	// 获取运行的指令名称
 	runCmdName := filepath.Base(os.Args[0])
 
-	if runCmdName != CliName {
+	if runCmdName != cliName {
 		// 是否找到指令
 		var found bool
 
 		// 检查是否存在与调用名称相同的子命令
 		for _, cmd := range rootCmd.Commands() {
 			if cmd.Name() == runCmdName {
-				os.Args = append([]string{CliName, runCmdName}, os.Args[1:]...)
+				os.Args = append([]string{cliName, runCmdName}, os.Args[1:]...)
 				found = true
 				break
 			}

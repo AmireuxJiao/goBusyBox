@@ -5,12 +5,12 @@ BUILD_DIR := bin
 # 源代码根路径
 SRC_ROOT := .
 # 定义所有支持的命令
-COMMANDS := echo lolcat ls
+COMMANDS := echo lolcat ls touch
 # 安装路径（系统可执行目录）
 # INSTALL_PATH := /usr/local/bin
 
 # 默认目标：构建二进制
-all: build
+all: help
 
 # 构建二进制文件
 build: tidy
@@ -20,16 +20,20 @@ build: tidy
 	@echo "Build completed: $(BUILD_DIR)/$(BINARY_NAME)"
 
 # 整理依赖（自动添加/移除模块依赖）
+.PHONY: tidy
 tidy:
 	@echo "Tidying dependencies..."
 	go mod tidy
 
 # 清理构建产物
+.PHONY: clean
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf $(BUILD_DIR)
 	@echo "Clean completed"
 
+# 创建所有指令的软连接
+.PHONY: links
 links: build
 	@echo "Creating command symlinks..."
 	@cd $(BUILD_DIR) && for cmd in $(COMMANDS); do \
@@ -52,21 +56,23 @@ links: build
 # 	@echo "Uninstall completed"
 
 # 格式化所有Go代码
+.PHONY: fmt
 fmt:
 	@echo "Formatting code..."
 	go fmt ./...
 	@echo "Format completed"
 
 # 运行测试（若后续添加测试文件，可在此扩展）
+.PHONY: test
 test:
 	@echo "Running tests..."
 	go test -v ./...
 	@echo "Test completed"
 
 # 显示帮助信息
+.PHONY: help
 help:
 	@echo "Available commands:"
-	@echo "  make           - 构建二进制（默认目标）"
 	@echo "  make build     - 构建二进制文件到bin目录"
 	@echo "  make tidy      - 整理Go模块依赖"
 	@echo "  make clean     - 清理构建产物"
@@ -75,5 +81,3 @@ help:
 	@echo "  make fmt       - 格式化所有Go代码"
 	@echo "  make test      - 运行测试用例"
 	@echo "  make help      - 显示此帮助信息"
-
-.PHONY: all build tidy clean install uninstall fmt test help

@@ -15,6 +15,10 @@ var lolcatCommand = &cobra.Command{
 	Run:   normal,
 }
 
+func init() {
+	rootCmd.AddCommand(lolcatCommand)
+}
+
 // generateRGBCode 用来生成RGB颜色数据
 func generateRGBCode(freq float32, i int) (int, int, int) {
 	return int(math.Sin(float64(freq)*float64(i)+0)*127 + 128),
@@ -51,8 +55,4 @@ func normal(cmd *cobra.Command, args []string) {
 		output_string = append(output_string, input)
 	}
 	print(output_string)
-}
-
-func init() {
-	rootCmd.AddCommand(lolcatCommand)
 }
