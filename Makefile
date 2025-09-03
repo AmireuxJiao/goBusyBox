@@ -5,7 +5,7 @@ BUILD_DIR := bin
 # 源代码根路径
 SRC_ROOT := .
 # 定义所有支持的命令
-COMMANDS := echo lolcat ls touch
+COMMANDS := echo lolcat ls touch par
 # 安装路径（系统可执行目录）
 # INSTALL_PATH := /usr/local/bin
 
